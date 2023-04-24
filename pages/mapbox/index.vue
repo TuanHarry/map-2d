@@ -19,7 +19,13 @@ import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import CircleMode from "../../lib/modes/CircleMode";
 import drawStyles from "../../lib/modes/styles";
 import rewind from "@mapbox/geojson-rewind";
-// import { geojsonToLayer } from "../../lib/utils/util";
+import { geojsonToLayer } from "../../lib/ui/util";
+
+var dataFeatures = {
+	type: "FeatureCollection",
+	features: [],
+};
+
 export default {
 	layout: "Map",
 	data() {
@@ -47,6 +53,7 @@ export default {
 			map.addControl(this.drawMap);
 			// listen draw.create
 			map.on("draw.create", this.createLayer);
+			map.on("idle", this.onHandleIdle);
 		},
 
 		initMapboxglDraw() {
@@ -86,18 +93,18 @@ export default {
 
 			console.debug("map current data scr", map, this.drawMap);
 			let currentData = this.drawMap.getAll();
-			console.debug("abc", currentData);
-
-			var dataFeatures = {
-				type: "FeatureCollection",
-				features: [],
-			};
+			console.debug("abc", currentData, currentData.features, features);
 			dataFeatures.features = [...currentData.features, ...features];
 			dataFeatures = rewind(dataFeatures);
-			this.$SLMap.registerDataSource("dataFeatures", dataFeatures);
+			console.debug("abc111", dataFeatures);
+
+			// console.debug("getSrc", map.getSource("map-data"));
+			map.getSource("map-data").setData(dataFeatures);
+
+			this.$SLMap.registerDataSource("map-data", dataFeatures);
 			this.$SLMap.registerLayer(
 				"test",
-				"dataFeatures",
+				"map-data",
 				"fill",
 				{
 					paint: {
@@ -107,6 +114,16 @@ export default {
 				},
 				"admin-0-boundary"
 			);
+		},
+
+		onHandleIdle(e) {
+			let map = e.target;
+			if (!map) return;
+			console.debug("map idle");
+			map.addSource("map-data", {
+				type: "geojson",
+				data: dataFeatures,
+			});
 		},
 
 		handleVeVongTron() {
