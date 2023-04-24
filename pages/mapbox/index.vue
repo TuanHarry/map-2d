@@ -2,9 +2,13 @@
 	<section class="h-full w-full flex justify-center items-center bg-white">
 		<div
 			id="map_container"
-			class="h-full w-full"
+			class="h-full w-full relative"
 		>
-
+			<button
+				@click="handleVeVongTron"
+				class="w-fit h-10 px-3 absolute top-10 left-10 bg-blue-400 "
+				:style="'z-index:1'"
+			> Vẽ vòng tròn</button>
 		</div>
 	</section>
 </template>
@@ -14,6 +18,8 @@ import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import CircleMode from "../../lib/modes/CircleMode";
 import drawStyles from "../../lib/modes/styles";
+import rewind from "@mapbox/geojson-rewind";
+// import { geojsonToLayer } from "../../lib/utils/util";
 export default {
 	layout: "Map",
 	data() {
@@ -33,11 +39,14 @@ export default {
 
 	methods: {
 		onLoad(e) {
+			let map = e.target;
 			console.debug("mapbox loaded");
 
 			// Add the Draw control to your map
 			this.initMapboxglDraw();
-			this.$SLMap.mapView.addControl(this.drawMap);
+			map.addControl(this.drawMap);
+			// listen draw.create
+			map.on("draw.create", this.createLayer);
 		},
 
 		initMapboxglDraw() {
@@ -57,6 +66,51 @@ export default {
 			});
 
 			console.debug("hi");
+		},
+
+		stripIds(features) {
+			return features.map((feature) => {
+				delete feature.id;
+				return feature;
+			});
+		},
+
+		createLayer(e) {
+			this.updateDrawLayer(this.stripIds(e.features));
+		},
+
+		updateDrawLayer(features) {
+			console.debug("run cai update draw layer", features);
+			let map = this.$SLMap.mapView;
+			if (!map) return;
+
+			console.debug("map current data scr", map, this.drawMap);
+			let currentData = this.drawMap.getAll();
+			console.debug("abc", currentData);
+
+			var dataFeatures = {
+				type: "FeatureCollection",
+				features: [],
+			};
+			dataFeatures.features = [...currentData.features, ...features];
+			dataFeatures = rewind(dataFeatures);
+			this.$SLMap.registerDataSource("dataFeatures", dataFeatures);
+			this.$SLMap.registerLayer(
+				"test",
+				"dataFeatures",
+				"fill",
+				{
+					paint: {
+						"fill-color": "#DB877A",
+						"fill-opacity": 0.55,
+					},
+				},
+				"admin-0-boundary"
+			);
+		},
+
+		handleVeVongTron() {
+			this.drawMap.changeMode("draw_circle");
 		},
 	},
 };

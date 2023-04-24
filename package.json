@@ -9,6 +9,7 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@mapbox/geojson-rewind": "^0.5.2",
     "@mapbox/mapbox-gl-draw": "^1.4.1",
     "@turf/area": "^6.5.0",
     "@turf/circle": "^6.5.0",
