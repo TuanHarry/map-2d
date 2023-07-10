@@ -4,11 +4,22 @@
 			id="map_container"
 			class="h-full w-full relative"
 		>
-			<button
-				@click="handleVeVongTron"
-				class="w-fit h-10 px-3 absolute top-10 left-10 bg-blue-400 "
-				:style="'z-index:1'"
-			> Vẽ vòng tròn</button>
+
+			<div
+				class="flex flex-col absolute top-10 left-10 space-y-4 "
+				:style="'z-index : 1'"
+			>
+				<button
+					@click="handleVeVongTron"
+					class="w-fit h-10 z-[1] bg-blue-400 px-3 text-sm"
+				> Vẽ vòng tròn</button>
+
+				<button
+					@click="handleVeVongTron"
+					class="w-fit h-10 z-[1] bg-blue-400 px-3 text-sm"
+				> Vẽ </button>
+			</div>
+
 		</div>
 	</section>
 </template>
@@ -19,15 +30,10 @@ import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import CircleMode from "../../lib/modes/CircleMode";
 import drawStyles from "../../lib/modes/styles";
 import rewind from "@mapbox/geojson-rewind";
-import turfDistance from "@turf/distance";
-import turfArea from "@turf/area";
-import turfAlong from "@turf/along";
-import turfCentroid from "@turf/centroid";
-import * as turfhelp from "@turf/helpers";
-import * as turfMeta from "@turf/invariant";
-import numeral from "numeral";
 
+import turfCentroid from "@turf/centroid";
 import { geojsonToLayer } from "../../lib/ui/util";
+import general from "~/models/general";
 import turfBearing from "@turf/bearing";
 var dataFeatures = {
 	type: "FeatureCollection",
@@ -36,6 +42,7 @@ var dataFeatures = {
 
 export default {
 	layout: "Map",
+	mixins: [general],
 	data() {
 		return {
 			mapView: null,
