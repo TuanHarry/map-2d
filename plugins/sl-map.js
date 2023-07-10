@@ -424,6 +424,14 @@ class SLMap {
     }
   }
 
+  initMarker(coordinates, opt = null) {
+    if (!coordinates) return
+    if (opt) {
+      return new mapboxgl.Marker(opt).setLngLat(coordinates).addTo(this.mapView)
+    }
+    return new mapboxgl.Marker().setLngLat(coordinates).addTo(this.mapView)
+  }
+
   //==Tuan Code End==========================
 
   /**

@@ -28,7 +28,7 @@ import * as turfMeta from "@turf/invariant";
 import numeral from "numeral";
 
 import { geojsonToLayer } from "../../lib/ui/util";
-
+import turfBearing from "@turf/bearing";
 var dataFeatures = {
 	type: "FeatureCollection",
 	features: [],
@@ -75,6 +75,120 @@ export default {
 					"text-size": 16,
 				},
 			});
+
+			var point1 = [106.67304032029568, 10.771402539442903];
+			var point4 = [106.67469728478446, 10.771402535044022];
+			var point5 = [106.67421930309979, 10.770244327318778];
+			var point2 = [106.67391115986482, 10.772784491263138];
+			var point6 = [106.67146970296034, 10.77183023409036];
+			var point3 = [106.67207401107453, 10.770090176787747];
+
+			this.$SLMap.initMarker(point1);
+			this.$SLMap.initMarker(point2);
+			this.$SLMap.initMarker(point3);
+			this.$SLMap.initMarker(point4);
+			this.$SLMap.initMarker(point5);
+			this.$SLMap.initMarker(point6);
+
+			var bearing = turfBearing(point1, point2);
+			console.debug("test", bearing);
+
+			const datasrc = {
+				id: "line",
+				type: "Feature",
+				properties: {
+					type: "Text",
+					coordinates: [point1, point2],
+				},
+				geometry: {
+					coordinates: [point1, point2],
+					type: "LineString",
+				},
+			};
+
+			this.$SLMap.registerDataSource("testline", datasrc);
+
+			this.$SLMap.registerLayer("layerline", "testline", "line", {
+				layout: {
+					"line-join": "round",
+					"line-cap": "round",
+				},
+				paint: {
+					"line-color": "red",
+					"line-width": 1.5,
+				},
+			});
+
+			// this.$SLMap.registerLayer("layertext", "testline", "symbol", {
+			// 	layout: {
+			// 		"symbol-placement": "line-center",
+			// 		"text-size": [
+			// 			"interpolate",
+			// 			["exponential", 1.5],
+			// 			["zoom"],
+			// 			5,
+			// 			10,
+			// 			10,
+			// 			12,
+			// 		],
+			// 		"text-field": "noi dung",
+			// 		"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+			// 		"text-allow-overlap": true,
+			// 		"text-ignore-placement": true,
+			// 		"text-offset": [0.5, -1.35],
+			// 	},
+			// 	paint: {
+			// 		"text-color": ["get", "color"],
+			// 		"text-halo-blur": 1,
+			// 		"text-halo-color": "#fff",
+			// 		"text-halo-width": 2,
+			// 	},
+			// });
+
+			const centroid = turfCentroid(datasrc);
+
+			console.debug("centroid ", centroid);
+
+			const datasrcCentroild = {
+				id: "centroid",
+				type: "Feature",
+				properties: {
+					type: "Point",
+					coordinates: [point1, point2],
+				},
+				geometry: {
+					coordinates: point1,
+					type: "Point",
+				},
+			};
+
+			this.$SLMap.registerDataSource("testlineCentroild", datasrcCentroild);
+
+			this.$SLMap.registerLayer("centroid", "testlineCentroild", "symbol", {
+				layout: {
+					"text-size": [
+						"interpolate",
+						["exponential", 1.5],
+						["zoom"],
+						5,
+						10,
+						10,
+						12,
+					],
+					"text-field": `noi dung ${bearing}`,
+					"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+					"text-allow-overlap": true,
+					"text-ignore-placement": true,
+					"text-offset": [0.5, -4],
+					"text-rotate": bearing < 0 ? 90 + bearing : bearing - 90,
+				},
+				paint: {
+					"text-color": ["get", "color"],
+					"text-halo-blur": 1,
+					"text-halo-color": "#fff",
+					"text-halo-width": 2,
+				},
+			});
 		},
 
 		initMapboxglDraw() {
@@ -91,7 +205,7 @@ export default {
 					trash: true,
 				},
 				styles: drawStyles,
-				defaultMode: "draw_circle",
+				// defaultMode: "draw_circle",
 			});
 
 			console.debug("hi");
